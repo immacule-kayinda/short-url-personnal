@@ -16,7 +16,31 @@ const session = require("express-session");
 const SQLiteStore = require("connect-sqlite3")(session);
 const PgSession = require('connect-pg-simple')(session);
 const db = require('./db');
+const pg = require('pg');
 
+
+const pool = new pg.Pool({
+  user: 'immacule.kayinda',
+  host: 'localhost',
+  database: 'shortlink',
+  password: '',
+  port: 5432,
+});
+
+// app.use(session({
+//   store: new PgSession({
+//     pool: pool,
+//     tableName: 'sessions', // Nom de la table dans votre base de données pour stocker les sessions
+//   }),
+//   secret: 'votre_cle_secrete_session',
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: {
+//     maxAge: 1000 * 60 * 60 * 24 * 7, // Durée de vie de la session en millisecondes (1 semaine dans cet exemple)
+//     httpOnly: true,
+//     secure: false, // Réglez sur true si votre site utilise HTTPS
+//   },
+// }));
 
 app.use(
   session({
@@ -138,6 +162,7 @@ app.post("/signup", (req, res) => {
     res.status(404).send("user already exists.");
   } else {
     req.session.userId = params.username;
+
     users.push(params);
     res.status(200).send("Utilisateur crée avec succes.");
   }
