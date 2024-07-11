@@ -1,0 +1,49 @@
+<!-- this is the Home page of my url shortener website  -->
+<%- include("./partials/header.ejs", {title: "Dashboard"}) %>
+<h1>Create shortLink</h1>
+<form action="">
+  <div>
+    <h1>Create new</h1>
+    <div>
+      <label for="destination">Destination</label>
+      <input
+        id="destination"
+        name="destination"
+        type="text"
+        placeholder="https://example.com/my-long-url"
+      />
+    </div>
+    <div>
+      <label for="title">Title (optionnal)</label>
+      <input type="text" id="title" name="title" />
+    </div>
+  </div>
+
+  <div>
+    <h1>Ways to share</h1>
+    <div>
+      <h3>ShortLink</h3>
+      <label for="domain">Domain</label>
+      <select disabled name="domain" id="domain">
+        <option value="ourLink">our.Link</option>
+      </select>
+      / <label for="custom_back_half">Custom back-half (optional)</label>
+      <input type="text" name="custom_back_half" id="custom_back_half" />
+    </div>
+
+    <div id="generate_qrcode">
+      <h3>QR Code (optionnal)</h3>
+
+      <input type="checkbox" name="createQR" id="createQR" />
+      <label for="checkbox"
+        >Generate a QR Code to share anywhere people can see it</label
+      >
+    </div>
+  </div>
+  <div>
+    <button id="cancelBtn">Cancel</button>
+    <button type="submit" id="createBtn">Create</button>
+  </div>
+</form>
+
+<script src="/js/addLink.js"></script>

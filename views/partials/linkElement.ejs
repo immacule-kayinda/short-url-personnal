@@ -1,0 +1,17 @@
+<div>
+  <% if (destinationTitle) { %>
+  <h2><%= destinationTitle %></h2>
+
+  <% } else { %>
+  <h2>No title provided</h2>
+  <% } %>
+  <div style="max-width: 150px">
+    <%- qr %>
+    <a href="/download-qrcode/<%= id %>" download="qr_<%= id %>.png"
+      >Télécharger le QR Code</a
+    >
+  </div>
+
+  <h3><%= destination %></h3>
+  <h4><a href="<%= url %>"><%= url %></a></h4>
+</div>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <title><%= title %></title>
+  </head>
+  <body>
+    <% if(title !== ""){ %>
+      <ul class="header-flex">
+        <li class="<%= (title === 'home' ? "selected": "") %>"><a href="/">Home</a></li>
+        <li class="<%= (title === 'dashboard' ? "selected" : "") %>"><a href="/dashboard">dashboard</a></li>
+        <li id="logout">Logout</li>
+      </ul>
+      <script>
+        const logout = document.querySelector("logout");
+        logout.addEventListener("click",async (event) => {
+          const response = await fetch("/logout", {
+            method: "POST",
+          })
+          if(response.ok) {
+            window.location.href = "http://localhost:3000/"
+          }
+        });
+      </script>
+      <% } %>    
+  </body>
+</html>

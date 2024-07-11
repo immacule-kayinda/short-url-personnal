@@ -1,0 +1,6 @@
+<p>If you are not automaticaly redirected,<%= link %> <a id="link" href="<%= link %>">click here</a></p>
+
+<script>
+    const link = document.getElementById('link');
+    window.location.href = link.href;
+</script>

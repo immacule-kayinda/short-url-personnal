@@ -1,0 +1,29 @@
+{
+  "name": "short-url-connect-to-db-immacule-kayinda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-pg-simple": "^9.0.1",
+    "connect-sqlite3": "^0.9.15",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.1.0",
+    "local": "^0.3.3",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.12.0",
+    "pg-promise": "^11.9.0",
+    "qrcode": "^1.5.3",
+    "uuid": "^10.0.0",
+    "validator": "^13.12.0"
+  }
+}

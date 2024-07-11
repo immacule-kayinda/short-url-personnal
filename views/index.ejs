@@ -1,0 +1,8 @@
+<%- include("./partials/header.ejs", {title: "Home"}) %>
+<h1>HOME PAGE</h1>
+Hello <%= userId %>
+<% data.forEach(element => { %> <%- include("./partials/linkElement.ejs",
+{destination: element.destination, id: element.id , url: element.url,
+destinationTitle: element.title, qr: element.qr}) %> <% }) %>
+
+<%- include("./partials/footer.ejs") %>
