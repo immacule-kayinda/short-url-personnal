@@ -14,42 +14,33 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const SQLiteStore = require("connect-sqlite3")(session);
-const PgSession = require('connect-pg-simple')(session);
-const db = require('./db');
-const pg = require('pg');
-
+const PgSession = require("connect-pg-simple")(session);
+const db = require("./db");
+const pg = require("pg");
+const { createLink, createUser } = require("./queries");
 
 const pool = new pg.Pool({
-  user: 'immacule.kayinda',
-  host: 'localhost',
-  database: 'shortlink',
-  password: '',
+  user: "immacule.kayinda",
+  host: "localhost",
+  database: "shortlink",
+  password: "",
   port: 5432,
 });
 
-// app.use(session({
-//   store: new PgSession({
-//     pool: pool,
-//     tableName: 'sessions', // Nom de la table dans votre base de données pour stocker les sessions
-//   }),
-//   secret: 'votre_cle_secrete_session',
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: {
-//     maxAge: 1000 * 60 * 60 * 24 * 7, // Durée de vie de la session en millisecondes (1 semaine dans cet exemple)
-//     httpOnly: true,
-//     secure: false, // Réglez sur true si votre site utilise HTTPS
-//   },
-// }));
-
-app.use(
-  session({
-    secret: "kadea academy",
-    resave: false,
-    saveUninitialized: false,
-    store: new SQLiteStore({ db: "sessions.db", dir: "./var/db" }),
-  })
-);
+app.use(session({
+  store: new PgSession({
+    pool: pool,
+    tableName: 'sessions', // Nom de la table dans votre base de données pour stocker les sessions
+  }),
+  secret: 'kadea academy',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7, // Durée de vie de la session en millisecondes (1 semaine dans cet exemple)
+    httpOnly: true,
+    secure: false, // Réglez sur true si votre site utilise HTTPS
+  },
+}));
 
 app.use(passport.authenticate("session"));
 
@@ -98,10 +89,8 @@ function authenticate(req, res, next) {
   })(req, res, next);
 }
 
-
-
 function isAuthenticated(req, res, next) {
-  if (req.session.userId) {
+  if (req.session.username) {
     next();
   } else {
     res.redirect("/login");
@@ -120,14 +109,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", isAuthenticated, (req, res) => {
   const userLinks = dataBase.filter(
-    (data) => data.userId === req.session.userId
+    (data) => data.username === req.session.username
   );
   console.log(
-    dataBase.filter((data) => data.userId === req.session.userId),
+    dataBase.filter((data) => data.username === req.session.username),
     "userLinks",
-    req.session.userId
+    req.session.username
   );
-  res.render("index", { userId: req.session.userId, data: userLinks });
+  res.render("index", { username: req.session.username, data: userLinks });
 });
 
 app.post("/login", (req, res) => {
@@ -142,7 +131,7 @@ app.post("/login", (req, res) => {
   if (user.password !== password) {
     return res.status(403).send("Mot de passe incorrect.");
   }
-  req.session.userId = username;
+  req.session.username = username;
   // Si l'utilisateur est trouvé et le mot de passe correspond, rediriger vers la page souhaitée
   res.redirect("/index");
 });
@@ -161,8 +150,10 @@ app.post("/signup", (req, res) => {
   if (users.some((user) => user.username === params.username)) {
     res.status(404).send("user already exists.");
   } else {
-    req.session.userId = params.username;
-
+    req.session.username = params.username;
+    req.session.firstName = params.firstname;
+    req.session.lastName = params.lastname;
+    createUser(params)
     users.push(params);
     res.status(200).send("Utilisateur crée avec succes.");
   }
@@ -219,15 +210,15 @@ app.post(
   ],
   async (req, res) => {
     const linkCreated = req.body;
-    linkCreated.destination = req.body.destination.replace( /&#x2F;/g, "/");
+    linkCreated.destination = req.body.destination.replace(/&#x2F;/g, "/");
     linkCreated.metrics = {};
     console.log(req.body);
     const id = uuidv4().split("-").at(-1);
     linkCreated.url = ourLInk + "redirect/" + id;
-    linkCreated.userId = req.session.userId;
+    linkCreated.username = req.session.username;
     console.log(linkCreated.qr);
     linkCreated.id = id;
-    console.log(linkCreated)
+    console.log(linkCreated);
     const existingDestination = dataBase.some(
       (dbLink) => dbLink.destination === linkCreated.destination
     );
@@ -266,15 +257,24 @@ app.post(
     }
     try {
       // add  link in the link table of the database that has this structure: id, url_shortened, base_url, qr_generated, is_deleted, visitors, id_user)
-      const result = await db.query(`
+      const result = await db.query(
+        `
       INSERT INTO public.links(
         url_shortened, base_url, qr_generated, is_deleted, visitors, id_user
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7
       )
-    `, [linkCreated.url, linkCreated.base_url, linkCreated.qr, linkCreated.is_deleted, linkCreated.metrics.visited, linkCreated.userId]);    } catch (error) {
-      
-    }
+    `,
+        [
+          linkCreated.url,
+          linkCreated.base_url,
+          linkCreated.qr,
+          linkCreated.is_deleted,
+          linkCreated.metrics.visited,
+          linkCreated.username,
+        ]
+      );
+    } catch (error) {}
     dataBase.push(linkCreated);
     res.status(200).send("Link created successfully");
   }

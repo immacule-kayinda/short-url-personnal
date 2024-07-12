@@ -63,7 +63,8 @@
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.target).entries());
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
     try {
       submitBtn.disabled = true;
       const response = await fetch("/signup", {
